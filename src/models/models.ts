@@ -8,11 +8,16 @@ import format from 'pg-format';
 const findDataFilters = async (filters: Filtros): Promise<Item[]> => {
     let query = 'SELECT * FROM inventario';
     const queryValuesArray: string[] = [];
-
-   if (filters) {
-    const functionResults = filterFunction(filters);
-    query = functionResults.query;
-    queryValuesArray.push(...functionResults.queryValuesArray);
+    // error para no enviar precio minimo mayor a precio maximo o precios negativos
+    const { min, max } = filters;
+    if (min > max || min < 0 || max < 0) {
+        throw new Error('outOfRange');
+    }
+    // funcion para el fitlro, utilizo foreach
+    if (filters) {
+        const functionResults = filterFunction(filters);
+        query = functionResults.query;
+        queryValuesArray.push(...functionResults.queryValuesArray);
     }
     query = format(query, ...queryValuesArray);
     console.log(query)
