@@ -10,7 +10,8 @@ const findDataFilters = async (filters: Filtros): Promise<Item[]> => {
     const queryValuesArray: string[] = [];
     // error para no enviar precio minimo mayor a precio maximo o precios negativos
     const { min, max } = filters;
-    if (min > max || min < 0 || max < 0) {
+    console.log(min, max)
+    if (min && max && min > max || min < 0 || max < 0) {
         throw new Error('outOfRange');
     }
     // funcion para el fitlro, utilizo foreach
