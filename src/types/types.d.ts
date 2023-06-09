@@ -12,12 +12,11 @@ export interface ItemHATEOAS {
     href: string;
 };
 
-export type Categoria = "anillo" | "collar" | "pulsera" | "reloj";
-export type Metal = "oro" | "plata" | "platino" | "acero";
 
-export interface SearchQuery {
+export interface Filtros {
     min: number;
     max: number;
-    categoria: Categoria;
-    metal: Metal;
+    categoria: string;
+    metal: string;
 };
+

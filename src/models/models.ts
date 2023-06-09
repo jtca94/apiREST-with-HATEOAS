@@ -1,48 +1,33 @@
 import { pool } from '../database/database';
-import { Item, SearchQuery } from '../types/types';
+import { Item, Filtros } from '../types/types';
+import { filterFunction } from '../utils/utils';
 import format from 'pg-format';
 
-const findDataFilters = async (filtros: SearchQuery): Promise<Item[]> => {
-    let query = 'SELECT * FROM inventario';
-    const queryValuesArray = [];
-    const { min, max, categoria, metal } = filtros;
-    if (min > max || min < 0 || max < 0) {
-        throw new Error('outOfRange');
-    }
 
-    console.log(min, max, categoria, metal)
-    if (categoria) {
-        queryValuesArray.push(categoria);
-        query += " WHERE categoria=%L";
+
+const findDataFilters = async (filters: Filtros): Promise<Item[]> => {
+    let query = 'SELECT * FROM inventario';
+    const queryValuesArray: string[] = [];
+
+   if (filters) {
+    const functionResults = filterFunction(filters);
+    query = functionResults.query;
+    queryValuesArray.push(...functionResults.queryValuesArray);
     }
-    if (metal) {
-        queryValuesArray.push(metal);
-        query += ' AND metal=%L';
-    }
-    if (min && max) {
-        queryValuesArray.push(min, max);
-        query += ' AND precio BETWEEN %L AND %L';
-    }
-    if (min && !max) {
-        queryValuesArray.push(min);
-        query += ' AND precio >= %L';
-    }
-    if (max && !min) {
-        queryValuesArray.push(max);
-        query += ' AND precio <= %L';
-    }
-    // se envien o no parametros, se ordena por id ascendentemente
-    query += ' ORDER BY id ASC';
-    query = format(query, ...queryValuesArray); 
+    query = format(query, ...queryValuesArray);
+    console.log(query)
     const { rows } = await pool.query(query);
+
     if (rows.length === 0) {
         throw new Error('404a');
     }
+
     return rows;
 };
 
 
-const findData = async (offset: number, limit: number, sort:any): Promise<Item[]> => {
+
+const findData = async (offset: number, limit: number, sort: any): Promise<Item[]> => {
     let query = 'SELECT * FROM inventario';
     const queryValuesArray = [];
     // si no se envian parametros, se ordena por id ascendentemente

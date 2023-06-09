@@ -1,19 +1,13 @@
 import { models } from "../models/models";
 import { Request, Response } from "express";
-import { Item, SearchQuery, Categoria, Metal } from "../types/types";
+import { Item } from "../types/types";
 import { handleErrors } from "./errors";
 
 const getAllItems = async (req: Request, res: Response) => {
     try {
-        const { min, max, categoria, metal } = req.query;
-        const filtros: SearchQuery = {
-            min: parseInt(min as string),
-            max: parseInt(max as string),
-            categoria: categoria as Categoria,
-            metal: metal as Metal
-        };
-
-        const results = await models.findDataFilters(filtros);
+        const filters = req.query;
+        // typescript no permite pasar por parametro un valor undefined, por lo que se debe validar que no sea undefined
+        const results = await models.findDataFilters(filters as any);
         return res.json(results);
     } catch (error: any) {
         const code: string = error.message;
